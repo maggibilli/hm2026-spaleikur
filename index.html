@@ -9,6 +9,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600&family=Archivo+Expanded:wght@600;700;800;900&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
 <style>
+  /* Fána-letur svo fánar birtist eins á öllum kerfum (Windows styður ekki fána-emoji) */
+  @font-face {
+    font-family: "Twemoji Country Flags";
+    unicode-range: U+1F1E6-1F1FF, U+1F3F4, U+E0061-E007F;
+    src: url("https://cdn.jsdelivr.net/npm/country-flag-emoji-polyfill@0.1.8/dist/TwemojiCountryFlags.woff2") format("woff2");
+  }
+
   /* ─────────────── Tokens ─────────────── */
   :root {
     --accent: #00FF80;
@@ -37,8 +44,8 @@
     --r-lg: 22px;
     --r-xl: 30px;
 
-    --font-display: "Anton", sans-serif;
-    --font-ui: "Archivo", sans-serif;
+    --font-display: "Twemoji Country Flags", "Anton", sans-serif;
+    --font-ui: "Twemoji Country Flags", "Archivo", sans-serif;
     --shadow: 0 18px 50px -20px rgba(0,0,0,0.7);
     --maxw: 1180px;
   }
