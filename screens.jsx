@@ -117,11 +117,11 @@ function HomeScreen({ stats, standings, setRoute }) {
           <div>
             <SecHead title="Toppurinn" />
             <div className="card lb">
-              {top.map((s) => <LbRow key={s.id} rank={s.rank} name={s.name} sub={s.team} init={s.init} pts={s.pts} me={s.me} trend={s.trend} />)}
+              {top.map((s) => <LbRow key={s.id} rank={s.rank} name={s.name} sub={s.hit != null ? `${s.hit} hittir` : ""} init={s.init} pts={s.pts} me={s.me} trend={s.trend} />)}
               {meStanding && meStanding.rank > 5 && (
                 <>
                   <div style={{ textAlign: "center", color: "var(--muted)", fontSize: 18, padding: "2px 0" }}>···</div>
-                  <LbRow rank={meStanding.rank} name={meStanding.name} sub={meStanding.team} init={meStanding.init} pts={meStanding.pts} me trend={meStanding.trend} />
+                  <LbRow rank={meStanding.rank} name={meStanding.name} sub={meStanding.hit != null ? `${meStanding.hit} hittir` : ""} init={meStanding.init} pts={meStanding.pts} me trend={meStanding.trend} />
                 </>
               )}
             </div>
@@ -139,9 +139,7 @@ function HomeScreen({ stats, standings, setRoute }) {
 
 // ───────────────────────── Leaderboard ─────────────────────────
 function LeaderboardScreen({ standings }) {
-  const [filt, setFilt] = React.useState("Allir");
-  const teams = ["Allir", ...Array.from(new Set(standings.map((s) => s.team)))];
-  const list = filt === "Allir" ? standings : standings.filter((s) => s.team === filt);
+  const list = standings;
   const podium = standings.slice(0, 3);
   const order = [1, 0, 2]; // 2., 1., 3.
 
@@ -168,15 +166,8 @@ function LeaderboardScreen({ standings }) {
         })}
       </div>
 
-      {/* Filter */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
-        {teams.map((t) => (
-          <button key={t} className={"pill" + (filt === t ? " accent" : "")} style={{ cursor: "pointer" }} onClick={() => setFilt(t)}>{t}</button>
-        ))}
-      </div>
-
       <div className="card lb">
-        {list.map((s) => <LbRow key={s.id} rank={s.rank} name={s.name} sub={s.team + (s.hit != null ? ` · ${s.hit} hittir` : "")} init={s.init} pts={s.pts} me={s.me} trend={s.trend} />)}
+        {list.map((s) => <LbRow key={s.id} rank={s.rank} name={s.name} sub={s.hit != null ? `${s.hit} hittir` : ""} init={s.init} pts={s.pts} me={s.me} trend={s.trend} />)}
       </div>
     </div>
   );
