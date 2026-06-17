@@ -18,11 +18,8 @@ function LoginScreen({ onAuthed }) {
   const { useState } = React;
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
-  const [team, setTeam] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
-
-  const DEILDIR = ["Hönnun", "Verkfræði", "Stjórnun", "Fjármál", "Markaðsmál", "Annað"];
 
   const submit = async (e) => {
     e.preventDefault();
@@ -31,7 +28,7 @@ function LoginScreen({ onAuthed }) {
     if (!name.trim()) return setErr("Sláðu inn nafnið þitt");
     setBusy(true);
     try {
-      const s = await api.join(code.trim(), name.trim(), team || null);
+      const s = await api.join(code.trim(), name.trim(), null);
       onAuthed(s);
     } catch (e2) {
       setErr(e2.message || "Innskráning mistókst");
@@ -58,18 +55,6 @@ function LoginScreen({ onAuthed }) {
         <label className="fld">
           <span>Nafn</span>
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Fullt nafn" autoComplete="name" />
-        </label>
-
-        <label className="fld">
-          <span>Deild <em>(valfrjálst)</em></span>
-          <div className="chip-row">
-            {DEILDIR.map((d) => (
-              <button type="button" key={d}
-                className={"pill" + (team === d ? " accent" : "")}
-                style={{ cursor: "pointer" }}
-                onClick={() => setTeam(team === d ? "" : d)}>{d}</button>
-            ))}
-          </div>
         </label>
 
         {err && <div className="login-err"><Icon name="bolt" style={{ width: 14, height: 14 }} /> {err}</div>}
