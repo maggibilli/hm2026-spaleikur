@@ -242,4 +242,63 @@ function ScheduleScreen({ preds, setRoute }) {
   );
 }
 
-Object.assign(window, { Badges, HomeScreen, LeaderboardScreen, MineScreen, ScheduleScreen });
+// ───────────────────────── Hvernig virkar þetta? ─────────────────────────
+function HelpScreen({ setRoute }) {
+  const Step = ({ n, title, children }) => (
+    <div className="help-step">
+      <div className="help-num">{n}</div>
+      <div>
+        <div className="help-st">{title}</div>
+        <div className="help-sd">{children}</div>
+      </div>
+    </div>
+  );
+  return (
+    <div className="anim-in">
+      <SecHead title="Hvernig virkar þetta?" sub="Allt sem þú þarft að vita á einni mínútu." />
+
+      <div className="card" style={{ padding: "22px 22px 8px", marginBottom: 18 }}>
+        <Step n="1" title="Skráðu þig inn">
+          Sláðu inn <strong>aðgangskóða</strong> fyrirtækisins, veldu <strong>nafn</strong> og <strong>PIN</strong>.
+          Notaðu sama nafn + PIN til að skrá þig inn á fleiri tækjum (síma, tölvu).
+        </Step>
+        <Step n="2" title="Spáðu fyrir leikina">
+          Farðu í <strong>Spá</strong> og veldu markatölu fyrir hvern leik. Þú getur breytt spánni
+          þangað til flautað er til leiks — þá <strong>læsist</strong> hún.
+        </Step>
+        <Step n="3" title="Spáðu fyrir riðla og meistara">
+          Veldu hvaða <strong>tvö lið</strong> komast áfram úr hverjum riðli og hver verður
+          <strong> heimsmeistari</strong> HM 2026.
+        </Step>
+        <Step n="4" title="Safnaðu stigum">
+          Stigin reiknast sjálfkrafa um leið og úrslit berast. Fylgstu með sætinu þínu á
+          <strong> Stigatöflu</strong>.
+        </Step>
+      </div>
+
+      <SecHead title="Stigagjöf" />
+      <div className="card" style={{ padding: "8px 22px" }}>
+        <div className="scoring-list">
+          <div className="sr"><span className="d">Réttur úrslit (sigurvegari eða jafntefli)</span><span className="v">3</span></div>
+          <div className="sr"><span className="d">… og rétt markatala annars liðsins</span><span className="v">+1</span></div>
+          <div className="sr"><span className="d">Nákvæm úrslit (bæði mörkin rétt)</span><span className="v">7</span></div>
+          <div className="sr"><span className="d">Rétt lið áfram úr riðli (hvert)</span><span className="v">5</span></div>
+          <div className="sr"><span className="d">Réttur heimsmeistari</span><span className="v">25</span></div>
+        </div>
+      </div>
+      <p className="login-foot" style={{ textAlign: "left", marginTop: 12 }}>
+        Dæmi: úrslit verða 2–1. Spáðir þú 2–1 færðu <strong>7 stig</strong>. Spáðir þú 3–1 (réttur
+        sigurvegari + rétt mark annars liðs) færðu <strong>4 stig</strong>. Spáðir þú 1–0 (réttur
+        sigurvegari) færðu <strong>3 stig</strong>.
+      </p>
+
+      <div style={{ marginTop: 18 }}>
+        <button className="btn btn-primary" onClick={() => setRoute("predict")}>
+          <Icon name="target" style={{ width: 16, height: 16 }} /> Byrja að spá
+        </button>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { Badges, HomeScreen, LeaderboardScreen, MineScreen, ScheduleScreen, HelpScreen });

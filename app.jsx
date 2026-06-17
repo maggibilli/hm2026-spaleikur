@@ -123,6 +123,7 @@ function App({ session, onLogout }) {
     leaderboard: <LeaderboardScreen standings={stats.standings} />,
     mine: <MineScreen stats={stats} groupPicks={groupPicks} champion={champion} setRoute={setRoute} />,
     schedule: <ScheduleScreen preds={preds} setRoute={setRoute} />,
+    rules: <HelpScreen setRoute={setRoute} />,
     admin: <AdminScreen session={session} onChange={async () => { await refreshMatches(); await refreshBoard(); }} />,
   }[route];
 

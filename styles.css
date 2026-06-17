@@ -345,3 +345,15 @@ input[type=range].score-range::-moz-range-thumb { width:22px; height:22px; borde
   .adm-match { grid-template-columns: 1fr; gap: 10px; }
   .adm-controls { justify-content: space-between; }
 }
+
+/* ───────── Leiðbeiningar / Hvernig virkar þetta ───────── */
+.help-step { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--line-soft); }
+.help-step:last-child { border-bottom: none; }
+.help-num {
+  flex: none; width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; font-family: var(--font-display); font-size: 16px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent);
+}
+.help-st { font-weight: 800; font-size: 15px; margin-bottom: 2px; }
+.help-sd { font-size: 14px; color: var(--text-dim); font-weight: 500; line-height: 1.5; }
+.help-sd strong { color: var(--text); font-weight: 700; }

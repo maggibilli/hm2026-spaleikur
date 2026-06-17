@@ -46,6 +46,7 @@ const ICONS = {
   clock: "M12 12 m-9 0 a9 9 0 1 0 18 0 a9 9 0 1 0 -18 0 M12 7v5l3 2",
   arrowUp: "M12 19V5M5 12l7-7 7 7",
   arrowDown: "M12 5v14M5 12l7 7 7-7",
+  help: "M12 12 m-9 0 a9 9 0 1 0 18 0 a9 9 0 1 0 -18 0 M9.6 9.3a2.6 2.6 0 0 1 4.3 1.6c-.3 1.4-2.3 1.6-2.3 3.1 M12 16.6h.01",
 };
 function Icon({ name, style }) {
   return (
@@ -78,6 +79,7 @@ const NAV = [
   { id: "leaderboard", label: "Stigatafla", icon: "trophy" },
   { id: "mine", label: "Mín spá", icon: "list" },
   { id: "schedule", label: "Dagskrá", icon: "calendar" },
+  { id: "rules", label: "Reglur", icon: "help" },
 ];
 
 const ADMIN_NAV = { id: "admin", label: "Stjórnun", icon: "users" };
