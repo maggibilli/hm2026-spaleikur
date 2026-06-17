@@ -97,7 +97,7 @@ function App({ session, onLogout }) {
     const accuracy = scored ? Math.round((hits / scored) * 100) : 0;
 
     const merged = [
-      ...others.filter((o) => o.id !== session.id).map((c) => ({
+      ...others.filter((o) => o.id !== session.id && o.name !== "Urslitabot").map((c) => ({
         id: c.id, name: c.name, team: c.team || "—", init: c.init, pts: c.pts, trend: c.trend, hit: c.hit,
       })),
       { id: session.id, name: session.name, team: session.team || "—", init: session.init || "ÉG", pts: points, trend, hit: hits, me: true },
