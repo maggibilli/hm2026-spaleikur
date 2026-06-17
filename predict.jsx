@@ -64,7 +64,7 @@ function Predictor({ value, onChange, variant = "stepper", hCode, aCode }) {
 // ───────────────────────── Predict screen ─────────────────────────
 function PredictScreen({ preds, setPred, groupPicks, setGroupPick, champion, setChampion, variant, toast }) {
   const [tab, setTab] = useState("matches");
-  const upcoming = MATCHES.filter((m) => m.status === "upcoming");
+  const upcoming = MATCHES.filter((m) => m.status === "upcoming" && !m.tbd);
 
   const tabs = [
     { id: "matches", label: "Leikir", n: upcoming.filter((m) => !preds[m.id]).length },
@@ -93,7 +93,7 @@ function PredictScreen({ preds, setPred, groupPicks, setGroupPick, champion, set
             return (
               <div key={m.id} className="card anim-in" style={{ padding: "18px 18px 16px" }}>
                 <div className="match-top" style={{ marginBottom: 14 }}>
-                  <span className="match-grp">Riðill {m.grp}</span>
+                  <span className="match-grp">{m.round}</span>
                   <span className="pill"><Icon name="clock" style={{ width: 13, height: 13 }} /> {fmtDay(m.dt)} · {fmtTime(m.dt)}</span>
                 </div>
                 <Predictor value={preds[m.id]} onChange={(nv) => setPred(m.id, nv)} variant={variant} hCode={m.h} aCode={m.a} />

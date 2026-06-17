@@ -168,7 +168,7 @@ function MatchCard({ m, pred, onClick }) {
   return (
     <div className="card match anim-in" onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
       <div className="match-top">
-        <span className="match-grp">Riðill {m.grp}</span>
+        <span className="match-grp">{m.round}</span>
         {live && <span className="pill live"><span className="live-dot"></span> Í gangi · {m.minute}′</span>}
         {finished && <span className="pill">Lokið</span>}
         {m.status === "upcoming" && <span className="pill"><Icon name="clock" style={{ width: 13, height: 13 }} /> {fmtDay(m.dt)} · {fmtTime(m.dt)}</span>}
@@ -200,6 +200,8 @@ function MatchCard({ m, pred, onClick }) {
           ) : (
             <span className="pill accent">Spá: {pred[0]}–{pred[1]}</span>
           )
+        ) : m.tbd ? (
+          <span className="pill" style={{ color: "var(--muted)" }}>Liðin óráðin</span>
         ) : (
           m.status === "upcoming" && <span className="pill" style={{ color: "var(--accent)" }}>Spá vantar →</span>
         )}

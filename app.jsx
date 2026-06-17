@@ -91,29 +91,30 @@ function App({ session, onLogout }) {
     let trend = 0;
     finished.slice(-2).forEach((m) => { const p = preds[m.id]; if (p) trend += scorePts(p, m.res).pts; });
 
-    const points = matchPoints;
     const predicted = Object.keys(preds).length;
     const groupsDone = Object.values(groupPicks).filter((x) => x && x.length === 2).length;
     const accuracy = scored ? Math.round((hits / scored) * 100) : 0;
 
-    const merged = [
-      ...others.filter((o) => o.id !== session.id && o.name !== "Urslitabot").map((c) => ({
-        id: c.id, name: c.name, team: c.team || "—", init: c.init, pts: c.pts, trend: c.trend, hit: c.hit,
-      })),
-      { id: session.id, name: session.name, team: session.team || "—", init: session.init || "ÉG", pts: points, trend, hit: hits, me: true },
-    ].sort((a, b) => b.pts - a.pts);
-    merged.forEach((s, i) => { s.rank = i + 1; });
-    const me = merged.find((s) => s.me);
-    const toLead = merged[0].pts - points;
+    // Stigatafla og heildarstig koma frá netþjóni (leaderboard) — inniheldur riðla- og meistarastig.
+    const board = others
+      .filter((o) => o.name !== "Urslitabot")
+      .map((o) => ({ id: o.id, name: o.name, team: o.team || "—", init: o.init, pts: o.pts, trend: o.trend, hit: o.hit, me: o.id === session.id }))
+      .sort((a, b) => b.pts - a.pts);
+    board.forEach((s, i) => { s.rank = i + 1; });
+    const meRow = board.find((s) => s.me);
+    const points = meRow ? meRow.pts : matchPoints;
+    const rank = meRow ? meRow.rank : 1;
+    const total = board.length || 1;
+    const toLead = board.length ? board[0].pts - points : 0;
 
     return {
       preds, points, matchPoints, predicted, groupsDone, accuracy,
-      hits, scored, exact, streak, trend, rank: me.rank, total: merged.length, toLead,
-      hasChampion: !!champion, standings: merged,
+      hits, scored, exact, streak, trend, rank, total, toLead,
+      hasChampion: !!champion, standings: board,
     };
   }, [preds, groupPicks, champion, others, session, dataVer]);
 
-  const pendingCount = MATCHES.filter((m) => m.status === "upcoming" && !preds[m.id]).length;
+  const pendingCount = MATCHES.filter((m) => m.status === "upcoming" && !m.tbd && !preds[m.id]).length;
 
   const screen = {
     home: <HomeScreen stats={stats} standings={stats.standings} setRoute={setRoute} />,

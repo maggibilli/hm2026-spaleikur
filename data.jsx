@@ -60,16 +60,19 @@ async function loadStatic() {
   const GROUPS_SORTED = {};
   Object.keys(GROUPS).sort().forEach((g) => (GROUPS_SORTED[g] = GROUPS[g]));
 
+  const ROUND_NAMES = { r32: "32-liða úrslit", r16: "16-liða úrslit", qf: "8-liða úrslit", sf: "Undanúrslit", third: "Bronsleikur", final: "Úrslitaleikur" };
   const MATCHES = matchesRes.data.map((m) => ({
     id: m.id,
     grp: m.grp,
     stage: m.stage,
-    h: m.home_code,
-    a: m.away_code,
+    h: m.home_code || "?",
+    a: m.away_code || "?",
     dt: m.dt,
     venue: m.venue,
     status: m.status,
     minute: m.minute,
+    tbd: !m.home_code || !m.away_code,   // útsláttarleikur þar sem liðin eru óráðin
+    round: m.stage === "group" ? "Riðill " + m.grp : (ROUND_NAMES[m.stage] || ""),
     res: m.status === "finished" || m.status === "live" ? [m.home_score, m.away_score] : undefined,
   }));
 

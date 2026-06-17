@@ -56,7 +56,7 @@ function LbRow({ rank, name, sub, init, pts, me, trend }) {
 // ───────────────────────── Home ─────────────────────────
 function HomeScreen({ stats, standings, setRoute }) {
   const live = MATCHES.find((m) => m.status === "live");
-  const upcoming = MATCHES.filter((m) => m.status === "upcoming");
+  const upcoming = MATCHES.filter((m) => m.status === "upcoming" && !m.tbd);
   const need = upcoming.filter((m) => !stats.preds[m.id]).slice(0, 3);
   const top = standings.slice(0, 5);
   const meStanding = standings.find((s) => s.me);
@@ -185,7 +185,7 @@ function LeaderboardScreen({ standings }) {
 // ───────────────────────── Mín spá ─────────────────────────
 function MineScreen({ stats, groupPicks, champion, setRoute }) {
   const finished = MATCHES.filter((m) => m.status === "finished");
-  const upcoming = MATCHES.filter((m) => m.status === "upcoming" || m.status === "live");
+  const upcoming = MATCHES.filter((m) => (m.status === "upcoming" || m.status === "live") && !m.tbd);
   const groupsDone = Object.values(groupPicks).filter((x) => x && x.length === 2).length;
 
   return (
@@ -233,7 +233,7 @@ function ScheduleScreen({ preds, setRoute }) {
               <span className="eyebrow">{fmtWeekday(ms[0].dt)}</span>
             </div>
             <div className="row-cards">
-              {ms.map((m) => <MatchCard key={m.id} m={m} pred={preds[m.id]} onClick={m.status === "upcoming" ? () => setRoute("predict") : undefined} />)}
+              {ms.map((m) => <MatchCard key={m.id} m={m} pred={preds[m.id]} onClick={m.status === "upcoming" && !m.tbd ? () => setRoute("predict") : undefined} />)}
             </div>
           </div>
         );
