@@ -64,7 +64,7 @@ function Predictor({ value, onChange, variant = "stepper", hCode, aCode }) {
 // ───────────────────────── Predict screen ─────────────────────────
 function PredictScreen({ preds, setPred, groupPicks, setGroupPick, champion, setChampion, variant, toast }) {
   const [tab, setTab] = useState("matches");
-  const upcoming = MATCHES.filter((m) => m.status === "upcoming" && !m.tbd);
+  const upcoming = MATCHES.filter(isOpen);
 
   const tabs = [
     { id: "matches", label: "Leikir", n: upcoming.filter((m) => !preds[m.id]).length },

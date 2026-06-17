@@ -56,7 +56,7 @@ function LbRow({ rank, name, sub, init, pts, me, trend }) {
 // ───────────────────────── Home ─────────────────────────
 function HomeScreen({ stats, standings, setRoute }) {
   const live = MATCHES.find((m) => m.status === "live");
-  const upcoming = MATCHES.filter((m) => m.status === "upcoming" && !m.tbd);
+  const upcoming = MATCHES.filter(isOpen);
   const need = upcoming.filter((m) => !stats.preds[m.id]).slice(0, 3);
   const top = standings.slice(0, 5);
   const meStanding = standings.find((s) => s.me);
@@ -185,7 +185,7 @@ function LeaderboardScreen({ standings }) {
 // ───────────────────────── Mín spá ─────────────────────────
 function MineScreen({ stats, groupPicks, champion, setRoute }) {
   const finished = MATCHES.filter((m) => m.status === "finished");
-  const upcoming = MATCHES.filter((m) => (m.status === "upcoming" || m.status === "live") && !m.tbd);
+  const upcoming = MATCHES.filter(isOpen);
   const groupsDone = Object.values(groupPicks).filter((x) => x && x.length === 2).length;
 
   return (

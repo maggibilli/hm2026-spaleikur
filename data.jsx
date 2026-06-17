@@ -79,4 +79,9 @@ async function loadStatic() {
   Object.assign(window, { TEAMS, GROUPS: GROUPS_SORTED, MATCHES });
 }
 
-Object.assign(window, { SCORING, sb, api, loadStatic });
+// Leikur er "opinn" til spár: framundan, liðin þekkt, og ekki byrjaður
+function isOpen(m) {
+  return m.status === "upcoming" && !m.tbd && new Date(m.dt).getTime() > Date.now();
+}
+
+Object.assign(window, { SCORING, sb, api, loadStatic, isOpen });

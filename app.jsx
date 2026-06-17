@@ -59,7 +59,7 @@ function App({ session, onLogout }) {
     setPreds((s) => ({ ...s, [id]: cv }));
     api.savePrediction(session.token, id, cv[0], cv[1])
       .then(() => setToast("Spá vistuð"))
-      .catch((e) => setToast(e.message));
+      .catch((e) => { setToast(e.message); refreshMe(); });
   };
   const setGroupPick = (g, picks) => {
     setGroupPicks((s) => ({ ...s, [g]: picks }));
@@ -114,7 +114,7 @@ function App({ session, onLogout }) {
     };
   }, [preds, groupPicks, champion, others, session, dataVer]);
 
-  const pendingCount = MATCHES.filter((m) => m.status === "upcoming" && !m.tbd && !preds[m.id]).length;
+  const pendingCount = MATCHES.filter((m) => isOpen(m) && !preds[m.id]).length;
 
   const screen = {
     home: <HomeScreen stats={stats} standings={stats.standings} setRoute={setRoute} />,
