@@ -23,7 +23,7 @@ async function rpc(fn, args) {
 }
 
 const api = {
-  join: (code, name, team) => rpc("join_game", { p_code: code, p_name: name, p_team: team || null }),
+  join: (code, name, pin) => rpc("join_game", { p_code: code, p_name: name, p_pin: pin }),
   getMe: (token) => rpc("get_me", { p_token: token }),
   savePrediction: (token, match, h, a) =>
     rpc("save_prediction", { p_token: token, p_match: match, p_home: h, p_away: a }),
