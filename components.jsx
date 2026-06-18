@@ -7,13 +7,15 @@ const ISL_MONTHS = ["jan", "feb", "mar", "apr", "maí", "jún", "júl", "ágú",
 const ISL_WD = ["sun", "mán", "þri", "mið", "fim", "fös", "lau"];
 const ISL_WD_FULL = ["sunnudagur", "mánudagur", "þriðjudagur", "miðvikudagur", "fimmtudagur", "föstudagur", "laugardagur"];
 
+// Tímar eru geymdir í UTC. Ísland er UTC+0 allt árið, svo við birtum UTC beint
+// (getUTC*) — þá sést réttur íslenskur tími óháð tímabelti tækisins.
 function parseDt(iso) { return new Date(iso.replace(" ", "T")); }
-function fmtDay(iso) { const d = parseDt(iso); return `${d.getDate()}. ${ISL_MONTHS[d.getMonth()]}`; }
-function fmtWd(iso) { const d = parseDt(iso); return ISL_WD[d.getDay()]; }
-function fmtWeekday(iso) { const d = parseDt(iso); return ISL_WD_FULL[d.getDay()]; }
+function fmtDay(iso) { const d = parseDt(iso); return `${d.getUTCDate()}. ${ISL_MONTHS[d.getUTCMonth()]}`; }
+function fmtWd(iso) { const d = parseDt(iso); return ISL_WD[d.getUTCDay()]; }
+function fmtWeekday(iso) { const d = parseDt(iso); return ISL_WD_FULL[d.getUTCDay()]; }
 function fmtTime(iso) {
   const d = parseDt(iso);
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
 }
 
 // Stigaútreikningur fyrir einn leik
