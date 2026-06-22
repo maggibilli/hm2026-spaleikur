@@ -31,6 +31,7 @@ const api = {
     rpc("save_group_pick", { p_token: token, p_grp: grp, p_picks: picks }),
   saveChampion: (token, team) => rpc("save_champion", { p_token: token, p_team: team }),
   leaderboard: () => rpc("leaderboard"),
+  playerResults: (id) => rpc("player_results", { p_id: id }),
   // Stjórnun
   adminSetResult: (token, match, h, a, status, minute) =>
     rpc("admin_set_result", { p_token: token, p_match: match, p_home: h, p_away: a, p_status: status, p_minute: minute == null ? null : minute }),

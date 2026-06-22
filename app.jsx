@@ -29,6 +29,7 @@ function App({ session, onLogout }) {
   const [others, setOthers] = useState([]);
   const [dataVer, setDataVer] = useState(0);
   const [toast, setToast] = useState(null);
+  const [viewPlayer, setViewPlayer] = useState(null);
 
   const refreshMe = () => api.getMe(session.token).then((me) => {
     setPreds(me.preds || {}); setGroupPicks(me.groupPicks || {}); setChampionState(me.champion || null);
@@ -117,11 +118,11 @@ function App({ session, onLogout }) {
   const pendingCount = MATCHES.filter((m) => isOpen(m) && !preds[m.id]).length;
 
   const screen = {
-    home: <HomeScreen stats={stats} standings={stats.standings} setRoute={setRoute} />,
+    home: <HomeScreen stats={stats} standings={stats.standings} setRoute={setRoute} onPick={setViewPlayer} />,
     predict: <PredictScreen preds={preds} setPred={setPred} groupPicks={groupPicks}
       setGroupPick={setGroupPick} champion={champion} setChampion={setChampion}
       variant={PRED_MAP[t.predictStyle]} />,
-    leaderboard: <LeaderboardScreen standings={stats.standings} />,
+    leaderboard: <LeaderboardScreen standings={stats.standings} onPick={setViewPlayer} />,
     mine: <MineScreen stats={stats} groupPicks={groupPicks} champion={champion} setRoute={setRoute} />,
     schedule: <ScheduleScreen preds={preds} setRoute={setRoute} />,
     rules: <HelpScreen setRoute={setRoute} />,
@@ -139,6 +140,7 @@ function App({ session, onLogout }) {
       <BottomNav route={route} setRoute={setRoute} pendingCount={pendingCount} isAdmin={session.is_admin} />
 
       {toast && <div className="toast pop"><Icon name="check" style={{ width: 16, height: 16 }} /> {toast}</div>}
+      {viewPlayer && <PlayerResults playerId={viewPlayer} onClose={() => setViewPlayer(null)} />}
 
       <TweaksPanel>
         <TweakSection label="Útlit" />

@@ -32,9 +32,9 @@ function Badges({ stats }) {
 }
 
 // ───────────────────────── Mini leaderboard row ─────────────────────────
-function LbRow({ rank, name, sub, init, pts, me, trend }) {
+function LbRow({ rank, name, sub, init, pts, me, trend, onClick }) {
   return (
-    <div className={"lb-row" + (me ? " me" : "")}>
+    <div className={"lb-row" + (me ? " me" : "") + (onClick ? " clickable" : "")} onClick={onClick}>
       <div className={"lb-rank" + (rank <= 3 ? " top" : "")}>{rank}</div>
       <Avatar init={init} me={me} size={40} />
       <div className="lb-name">
@@ -54,7 +54,7 @@ function LbRow({ rank, name, sub, init, pts, me, trend }) {
 }
 
 // ───────────────────────── Home ─────────────────────────
-function HomeScreen({ stats, standings, setRoute }) {
+function HomeScreen({ stats, standings, setRoute, onPick }) {
   const live = MATCHES.find((m) => m.status === "live");
   const upcoming = MATCHES.filter(isOpen);
   const need = upcoming.filter((m) => !stats.preds[m.id]).slice(0, 3);
@@ -117,11 +117,11 @@ function HomeScreen({ stats, standings, setRoute }) {
           <div>
             <SecHead title="Toppurinn" />
             <div className="card lb">
-              {top.map((s) => <LbRow key={s.id} rank={s.rank} name={s.name} sub={s.hit != null ? `${s.hit} hittir` : ""} init={s.init} pts={s.pts} me={s.me} trend={s.trend} />)}
+              {top.map((s) => <LbRow key={s.id} rank={s.rank} name={s.name} sub={s.hit != null ? `${s.hit} hittir` : ""} init={s.init} pts={s.pts} me={s.me} trend={s.trend} onClick={() => onPick(s.id)} />)}
               {meStanding && meStanding.rank > 5 && (
                 <>
                   <div style={{ textAlign: "center", color: "var(--muted)", fontSize: 18, padding: "2px 0" }}>···</div>
-                  <LbRow rank={meStanding.rank} name={meStanding.name} sub={meStanding.hit != null ? `${meStanding.hit} hittir` : ""} init={meStanding.init} pts={meStanding.pts} me trend={meStanding.trend} />
+                  <LbRow rank={meStanding.rank} name={meStanding.name} sub={meStanding.hit != null ? `${meStanding.hit} hittir` : ""} init={meStanding.init} pts={meStanding.pts} me trend={meStanding.trend} onClick={() => onPick(meStanding.id)} />
                 </>
               )}
             </div>
@@ -138,7 +138,7 @@ function HomeScreen({ stats, standings, setRoute }) {
 }
 
 // ───────────────────────── Leaderboard ─────────────────────────
-function LeaderboardScreen({ standings }) {
+function LeaderboardScreen({ standings, onPick }) {
   const list = standings;
   const podium = standings.slice(0, 3);
   const order = [1, 0, 2]; // 2., 1., 3.
@@ -155,7 +155,7 @@ function LeaderboardScreen({ standings }) {
           const place = idx + 1;
           const barH = place === 1 ? 80 : place === 2 ? 58 : 42;
           return (
-            <div key={s.id} className={"podium-col p" + place + (s.me ? " is-me" : "")}>
+            <div key={s.id} className={"podium-col p" + place + (s.me ? " is-me" : "")} style={{ cursor: "pointer" }} onClick={() => onPick(s.id)}>
               <div className="medal">{place}</div>
               <Avatar init={s.init} me={s.me} size={place === 1 ? 56 : 46} />
               <div className="nm">{s.name}</div>
@@ -167,7 +167,7 @@ function LeaderboardScreen({ standings }) {
       </div>
 
       <div className="card lb">
-        {list.map((s) => <LbRow key={s.id} rank={s.rank} name={s.name} sub={s.hit != null ? `${s.hit} hittir` : ""} init={s.init} pts={s.pts} me={s.me} trend={s.trend} />)}
+        {list.map((s) => <LbRow key={s.id} rank={s.rank} name={s.name} sub={s.hit != null ? `${s.hit} hittir` : ""} init={s.init} pts={s.pts} me={s.me} trend={s.trend} onClick={() => onPick(s.id)} />)}
       </div>
     </div>
   );
@@ -297,6 +297,7 @@ function DisplayScreen() {
   const { useState, useEffect } = React;
   const [board, setBoard] = useState([]);
   const [, setVer] = useState(0);
+  const [sel, setSel] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -338,7 +339,7 @@ function DisplayScreen() {
           <h2 className="disp-h">Stigatafla</h2>
           {standings.length === 0 && <div className="empty">Engir leikmenn enn.</div>}
           {standings.map((s) => (
-            <div key={s.id} className={"disp-row r" + (s._rank <= 3 ? s._rank : "")}>
+            <div key={s.id} className={"disp-row clickable r" + (s._rank <= 3 ? s._rank : "")} onClick={() => setSel(s.id)}>
               <div className="disp-rank">{s._rank}</div>
               <div className="disp-name">{s.name}</div>
               <div className="disp-pts">{s.pts}<span>stig</span></div>
@@ -363,8 +364,49 @@ function DisplayScreen() {
           </div>
         </aside>
       </div>
+      {sel && <PlayerResults playerId={sel} onClose={() => setSel(null)} />}
     </div>
   );
 }
 
-Object.assign(window, { Badges, HomeScreen, LeaderboardScreen, MineScreen, ScheduleScreen, HelpScreen, DisplayScreen });
+// ───────────────────────── Spár leikmanns á liðna leiki (modal) ─────────────────────────
+function PlayerResults({ playerId, onClose }) {
+  const { useState, useEffect } = React;
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    api.playerResults(playerId).then((d) => { if (alive) setData(d); }).catch(() => { if (alive) setData({ name: "?", preds: {} }); });
+    return () => { alive = false; };
+  }, [playerId]);
+
+  const finished = (window.MATCHES || []).filter((m) => m.status === "finished").sort((a, b) => b.dt.localeCompare(a.dt));
+  const preds = (data && data.preds) || {};
+  const mine = finished.filter((m) => preds[m.id]);
+  const total = mine.reduce((s, m) => s + scorePts(preds[m.id], m.res).pts, 0);
+
+  return (
+    <div className="pmodal-overlay" onClick={onClose}>
+      <div className="pmodal card" onClick={(e) => e.stopPropagation()}>
+        <div className="pmodal-top">
+          <div style={{ minWidth: 0 }}>
+            <div className="eyebrow">Spár · liðnir leikir</div>
+            <h2 className="display" style={{ fontSize: 24, lineHeight: 1 }}>{data ? data.name : "…"}</h2>
+          </div>
+          <div className="pmodal-tot">{total}<span>stig</span></div>
+          <button className="pmodal-x" onClick={onClose} aria-label="Loka">✕</button>
+        </div>
+        <div className="pmodal-body">
+          {!data && <div className="empty">Sæki…</div>}
+          {data && mine.length === 0 && <div className="empty">Engar spár á liðna leiki enn.</div>}
+          {mine.length > 0 && (
+            <div className="row-cards" style={{ gridTemplateColumns: "1fr" }}>
+              {mine.map((m) => <MatchCard key={m.id} m={m} pred={preds[m.id]} />)}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { Badges, HomeScreen, LeaderboardScreen, MineScreen, ScheduleScreen, HelpScreen, DisplayScreen, PlayerResults });

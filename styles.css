@@ -409,3 +409,22 @@ input[type=range].score-range::-moz-range-thumb { width:22px; height:22px; borde
 .disp-mrow .sc i { color: var(--muted); font-style: normal; margin: 0 3px; }
 .disp-mrow .tm { color: var(--text-dim); font-size: clamp(11px,1vw,14px); font-weight: 700; white-space: nowrap; }
 .disp-none { color: var(--muted); font-size: 13px; font-weight: 600; padding: 6px 0; }
+.disp-row.clickable { cursor: pointer; border-radius: 10px; transition: background .12s; }
+.disp-row.clickable:hover { background: var(--surface); }
+
+/* ───────── Smellanlegar raðir + leikmanns-gluggi ───────── */
+.lb-row.clickable { cursor: pointer; }
+.pmodal-overlay {
+  position: fixed; inset: 0; z-index: 300; padding: 18px;
+  background: rgba(0,0,0,.62); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  display: grid; place-items: center; animation: fade .18s ease both;
+}
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.pmodal { width: 100%; max-width: 680px; max-height: 88vh; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+.pmodal-top { display: flex; align-items: center; gap: 14px; padding: 20px 22px; border-bottom: 1px solid var(--line); }
+.pmodal-top h2 { font-family: var(--font-display); font-weight: 400; text-transform: uppercase; }
+.pmodal-tot { margin-left: auto; font-family: var(--font-display); font-size: 32px; color: var(--accent); line-height: 1; text-align: right; }
+.pmodal-tot span { display: block; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-family: var(--font-ui); font-weight: 800; }
+.pmodal-x { width: 36px; height: 36px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); color: var(--text-dim); font-size: 14px; flex: none; }
+.pmodal-x:hover { color: var(--text); background: var(--surface); }
+.pmodal-body { padding: 18px 22px; overflow-y: auto; }
