@@ -55,6 +55,39 @@ function ResultRow({ m, token, onSaved }) {
   );
 }
 
+// ───────────────────────── Ein leikmannaröð (breyta/eyða) ─────────────────────────
+function PlayerRow({ p, token, onChanged }) {
+  const { useState } = React;
+  const [name, setName] = useState(p.name);
+  const [busy, setBusy] = useState(false);
+  const dirty = name.trim() !== p.name && name.trim().length > 0;
+  const d = new Date(p.created_at);
+
+  const act = async (fn) => { setBusy(true); try { await fn(); await onChanged(); } catch (e) { alert(e.message); } setBusy(false); };
+  const save = () => act(() => api.adminRename(token, p.id, name.trim()));
+  const toggleAdmin = () => act(() => api.adminSetAdmin(token, p.id, !p.is_admin));
+  const remove = () => { if (!confirm(`Eyða leikmanninum „${p.name}“? ${p.preds} spár tapast og þetta er óafturkræft.`)) return; act(() => api.adminRemovePlayer(token, p.id)); };
+
+  return (
+    <div className="adm-urow">
+      <div className="adm-uleft">
+        <input className="adm-input adm-uname" value={name} onChange={(e) => setName(e.target.value)} disabled={busy} />
+        <div className="adm-umeta">
+          {p.preds} spár · skráð {d.getUTCDate()}.{d.getUTCMonth() + 1}.
+          {p.is_admin && <span className="pill accent" style={{ marginLeft: 8 }}>Stjórnandi</span>}
+          {!p.claimed && <span className="pill" style={{ marginLeft: 6 }}>óskráð</span>}
+          {p.preds === 0 && p.claimed && <span className="pill" style={{ marginLeft: 6, color: "var(--gold)" }}>engar spár</span>}
+        </div>
+      </div>
+      <div className="adm-uactions">
+        {dirty && <button className="btn btn-primary adm-mini" onClick={save} disabled={busy}>Vista nafn</button>}
+        <button className="btn btn-ghost adm-mini" onClick={toggleAdmin} disabled={busy}>{p.is_admin ? "Taka af admin" : "Gera admin"}</button>
+        <button className="btn btn-ghost adm-mini adm-del" onClick={remove} disabled={busy}>Eyða</button>
+      </div>
+    </div>
+  );
+}
+
 // ───────────────────────── Stjórnendaskjár ─────────────────────────
 function AdminScreen({ session, onChange }) {
   const { useState, useEffect } = React;
@@ -135,16 +168,13 @@ function AdminScreen({ session, onChange }) {
             </div>
           </div>
 
-          <div className="card lb">
+          <div className="login-foot" style={{ textAlign: "left", margin: "0 0 10px" }}>
+            {info ? `${info.players.length} leikmenn` : ""} · raðað eftir nafni svo tvískráningar séu saman. Leikmaður með „engar spár“ er oftast tvískráning.
+          </div>
+          <div className="card adm-ulist">
             {info && info.players.length === 0 && <div className="empty" style={{ border: "none" }}>Engir skráðir enn.</div>}
             {info && info.players.map((p) => (
-              <div key={p.id} className="adm-prow">
-                <div>
-                  <div className="nm">{p.name} {p.is_admin && <span className="pill accent" style={{ marginLeft: 6 }}>Stjórnandi</span>}</div>
-                  <div className="sub">{p.team || "—"} · {p.claimed ? "skráð(ur) inn" : "ekki skráð(ur) enn"}</div>
-                </div>
-                <button className="btn btn-ghost adm-del" onClick={() => removePlayer(p)} title="Fjarlægja">Fjarlægja</button>
-              </div>
+              <PlayerRow key={p.id} p={p} token={session.token} onChanged={loadInfo} />
             ))}
           </div>
         </div>

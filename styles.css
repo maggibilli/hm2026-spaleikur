@@ -352,6 +352,16 @@ input[type=range].score-range::-moz-range-thumb { width:22px; height:22px; borde
 .adm-prow .sub { font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 2px; }
 .adm-del { font-size: 12px; padding: 7px 12px; color: var(--muted); }
 .adm-del:hover { color: var(--live); }
+
+/* Leikmannastjórnun (breyta/eyða) */
+.adm-ulist { padding: 4px 16px; }
+.adm-urow { display: flex; align-items: center; gap: 12px; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid var(--line-soft); flex-wrap: wrap; }
+.adm-urow:last-child { border-bottom: none; }
+.adm-uleft { flex: 1 1 220px; min-width: 0; }
+.adm-uname { width: 100%; max-width: 300px; font-weight: 700; }
+.adm-umeta { font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 6px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+.adm-uactions { display: flex; gap: 8px; flex-wrap: wrap; }
+.adm-mini { padding: 8px 13px; font-size: 12px; }
 @media (max-width: 720px) {
   .adm-match { grid-template-columns: 1fr; gap: 10px; }
   .adm-controls { justify-content: space-between; }

@@ -37,6 +37,8 @@ const api = {
   adminAddPlayer: (token, name, team) =>
     rpc("admin_add_player", { p_token: token, p_name: name, p_team: team || null }),
   adminRemovePlayer: (token, id) => rpc("admin_remove_player", { p_token: token, p_id: id }),
+  adminRename: (token, id, name) => rpc("admin_rename_player", { p_token: token, p_id: id, p_name: name }),
+  adminSetAdmin: (token, id, isAdmin) => rpc("admin_set_admin", { p_token: token, p_id: id, p_admin: isAdmin }),
   adminSetCode: (token, code) => rpc("admin_set_code", { p_token: token, p_access: code }),
   adminList: (token) => rpc("admin_list", { p_token: token }),
 };
