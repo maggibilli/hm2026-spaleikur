@@ -95,7 +95,6 @@ function AdminScreen({ session, onChange }) {
   const [filt, setFilt] = useState("all");
   const [info, setInfo] = useState(null); // { access_code, players }
   const [newName, setNewName] = useState("");
-  const [newTeam, setNewTeam] = useState("");
   const [codeDraft, setCodeDraft] = useState("");
   const [msg, setMsg] = useState(null);
 
@@ -106,7 +105,7 @@ function AdminScreen({ session, onChange }) {
 
   const addPlayer = async () => {
     if (!newName.trim()) return;
-    try { await api.adminAddPlayer(session.token, newName.trim(), newTeam || null); setNewName(""); setNewTeam(""); loadInfo(); }
+    try { await api.adminAddPlayer(session.token, newName.trim(), null); setNewName(""); loadInfo(); }
     catch (e) { alert(e.message); }
   };
   const removePlayer = async (p) => {
@@ -160,11 +159,10 @@ function AdminScreen({ session, onChange }) {
             <div className="eyebrow" style={{ marginBottom: 10 }}>Bæta við starfsmanni</div>
             <div className="adm-addrow">
               <input className="adm-input" placeholder="Nafn" value={newName} onChange={(e) => setNewName(e.target.value)} />
-              <input className="adm-input" placeholder="Deild (valfrjálst)" value={newTeam} onChange={(e) => setNewTeam(e.target.value)} />
               <button className="btn btn-primary" onClick={addPlayer}>Bæta við</button>
             </div>
             <div className="login-foot" style={{ marginTop: 10 }}>
-              Starfsmaður sem þú bætir við velur svo nafnið sitt + slær inn aðgangskóðann til að taka þátt.
+              Starfsmaður sem þú bætir við slær svo inn nafnið sitt + aðgangskóðann og velur sér PIN til að taka þátt.
             </div>
           </div>
 
