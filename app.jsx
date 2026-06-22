@@ -160,7 +160,11 @@ function Root() {
   const [session, setSession] = useState(null);
   const [booting, setBooting] = useState(true);
 
+  // Skjá-hamur fyrir sameiginlegan skjá: opnaðu .../#skjar — engin innskráning
+  const isDisplay = location.hash.replace("#", "") === "skjar" || new URLSearchParams(location.search).has("skjar");
+
   useEffect(() => {
+    if (isDisplay) { setBooting(false); return; }
     const token = localStorage.getItem(LS_TOKEN);
     if (!token) { setBooting(false); return; }
     api.getMe(token)
@@ -169,6 +173,7 @@ function Root() {
       .finally(() => setBooting(false));
   }, []);
 
+  if (isDisplay) return <DisplayScreen />;
   if (booting) return <Splash />;
   if (!session) return <LoginScreen onAuthed={(s) => { localStorage.setItem(LS_TOKEN, s.token); setSession(s); }} />;
   return <App session={session} onLogout={() => { localStorage.removeItem(LS_TOKEN); setSession(null); }} />;

@@ -292,4 +292,79 @@ function HelpScreen({ setRoute }) {
   );
 }
 
-Object.assign(window, { Badges, HomeScreen, LeaderboardScreen, MineScreen, ScheduleScreen, HelpScreen });
+// ───────────────────────── Skjá-hamur (sameiginlegur skjár / sjónvarp) ─────────────────────────
+function DisplayScreen() {
+  const { useState, useEffect } = React;
+  const [board, setBoard] = useState([]);
+  const [, setVer] = useState(0);
+
+  useEffect(() => {
+    let alive = true;
+    const loadBoard = () => api.leaderboard().then((l) => { if (alive) setBoard(l || []); }).catch(() => {});
+    const refreshMatches = () => loadStatic().then(() => { if (alive) setVer((v) => v + 1); }).catch(() => {});
+    loadBoard();
+    const id = setInterval(() => { loadBoard(); refreshMatches(); }, 45000); // uppfærist á 45 sek fresti
+    return () => { alive = false; clearInterval(id); };
+  }, []);
+
+  const standings = board.filter((p) => p.name !== "Urslitabot").slice().sort((a, b) => b.pts - a.pts);
+  standings.forEach((s, i) => { s._rank = i + 1; });
+  const M = window.MATCHES || [];
+  const live = M.filter((m) => m.status === "live");
+  const recent = M.filter((m) => m.status === "finished").sort((a, b) => b.dt.localeCompare(a.dt)).slice(0, 6);
+  const next = M.filter((m) => m.status === "upcoming" && !m.tbd && new Date(m.dt).getTime() > Date.now())
+    .sort((a, b) => a.dt.localeCompare(b.dt)).slice(0, 6);
+
+  const MRow = ({ m, showScore }) => (
+    <div className="disp-mrow">
+      <span className="t">{team(m.h).flag} {m.h}</span>
+      {showScore
+        ? <span className="sc">{m.res[0]}<i>–</i>{m.res[1]}</span>
+        : <span className="tm">{fmtDay(m.dt)} · {fmtTime(m.dt)}</span>}
+      <span className="t r">{m.a} {team(m.a).flag}</span>
+    </div>
+  );
+
+  return (
+    <div className="disp">
+      <header className="disp-top">
+        <Logo h={34} />
+        <div className="disp-title">Spáleikur · HM 2026</div>
+        <div className="disp-live"><span className="live-dot" /> Beint · uppfærist sjálfkrafa</div>
+      </header>
+
+      <div className="disp-grid">
+        <section className="card disp-lb">
+          <h2 className="disp-h">Stigatafla</h2>
+          {standings.length === 0 && <div className="empty">Engir leikmenn enn.</div>}
+          {standings.map((s) => (
+            <div key={s.id} className={"disp-row r" + (s._rank <= 3 ? s._rank : "")}>
+              <div className="disp-rank">{s._rank}</div>
+              <div className="disp-name">{s.name}</div>
+              <div className="disp-pts">{s.pts}<span>stig</span></div>
+            </div>
+          ))}
+        </section>
+
+        <aside className="disp-side">
+          {live.length > 0 && (
+            <div className="card disp-block">
+              <h3>Í gangi núna</h3>
+              {live.map((m) => <MRow key={m.id} m={m} showScore />)}
+            </div>
+          )}
+          <div className="card disp-block">
+            <h3>Nýjustu úrslit</h3>
+            {recent.length ? recent.map((m) => <MRow key={m.id} m={m} showScore />) : <div className="disp-none">Engir leikir búnir enn.</div>}
+          </div>
+          <div className="card disp-block">
+            <h3>Næstu leikir</h3>
+            {next.length ? next.map((m) => <MRow key={m.id} m={m} />) : <div className="disp-none">—</div>}
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { Badges, HomeScreen, LeaderboardScreen, MineScreen, ScheduleScreen, HelpScreen, DisplayScreen });
