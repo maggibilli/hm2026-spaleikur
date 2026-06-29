@@ -109,9 +109,11 @@ function BTeam({ m, i, preds, setSide, locked }) {
 function BMatch({ id, preds, setSide, pos, isFinal }) {
   const m = MATCHES.find((x) => x.id === id);
   if (!m) return <div className="kb-match" />;
+  const fin = m.status === "finished";
   return (
     <div className={"kb-match " + (pos || "") + (isFinal ? " kb-final" : "")}>
       <BTeam m={m} i={0} preds={preds} setSide={setSide} />
+      <div className={"kb-when" + (fin ? " done" : "")}>{fmtDay(m.dt)} · {fmtTime(m.dt)}</div>
       <BTeam m={m} i={1} preds={preds} setSide={setSide} />
     </div>
   );
