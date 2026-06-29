@@ -180,6 +180,60 @@ input[type=range].score-range { -webkit-appearance:none; appearance:none; width:
 input[type=range].score-range::-webkit-slider-thumb { -webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:var(--accent); cursor:pointer; box-shadow:0 0 12px var(--accent-glow); }
 input[type=range].score-range::-moz-range-thumb { width:22px; height:22px; border:none; border-radius:50%; background:var(--accent); cursor:pointer; }
 
+/* ───────── Útsláttartré (bracket) ───────── */
+.kb-scroll { overflow-x: auto; overflow-y: hidden; padding: 6px 2px 16px; -webkit-overflow-scrolling: touch; }
+.kb { display: flex; align-items: stretch; min-width: max-content; padding-bottom: 4px; }
+.kb-round { display: flex; flex-direction: column; justify-content: space-around; padding: 0 13px; min-width: 184px; }
+.kb-round.r-right { align-items: flex-end; }
+.kb-round-label { text-align: center; font-size: 10px; font-weight: 800; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+
+.kb-match { position: relative; width: 100%; background: linear-gradient(180deg, var(--surface), var(--bg-2));
+  border: 1px solid var(--line); border-radius: 14px; padding: 7px; display: flex; flex-direction: column; gap: 5px;
+  box-shadow: var(--shadow); }
+.kb-team { display: flex; align-items: center; gap: 8px; padding: 5px 6px; border-radius: 9px; min-height: 40px; }
+.kb-round.r-right .kb-team { flex-direction: row-reverse; text-align: right; }
+.kb-team.win { background: color-mix(in srgb, var(--accent) 13%, transparent); }
+.kb-badge { width: 32px; height: 32px; border-radius: 50%; flex: none; display: grid; place-items: center;
+  font-size: 18px; line-height: 1; background: var(--surface-2); border: 2px solid var(--line); overflow: hidden; }
+.kb-team.win .kb-badge { border-color: var(--accent); }
+.kb-name { flex: 1; min-width: 0; font-weight: 700; font-size: 13px; line-height: 1.1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kb-name small { display: block; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .06em; }
+.kb-tbd { color: var(--muted); font-style: italic; font-weight: 600; font-size: 12px; }
+
+.kb-sc { display: flex; align-items: center; gap: 5px; flex: none; }
+.kb-round.r-right .kb-sc { flex-direction: row-reverse; }
+.kb-step { width: 23px; height: 23px; border-radius: 7px; background: var(--surface-2); border: 1px solid var(--line);
+  color: var(--text-dim); font-size: 15px; font-weight: 800; line-height: 1; display: grid; place-items: center;
+  cursor: pointer; transition: background .12s, color .12s; }
+.kb-step:hover { background: var(--accent); color: var(--accent-ink); }
+.kb-num { font-family: var(--font-display); font-size: 18px; min-width: 16px; text-align: center; color: var(--text); }
+.kb-num.set { color: var(--accent); }
+.kb-num.kb-lock { color: var(--muted); }
+
+/* Tengilínur (gylltar) */
+.kb-round.r-left  .kb-match::after { content:""; position:absolute; right:-13px; top:50%; width:13px; height:2px; background:var(--gold); opacity:.45; }
+.kb-round.r-right .kb-match::after { content:""; position:absolute; left:-13px;  top:50%; width:13px; height:2px; background:var(--gold); opacity:.45; }
+.kb-round.r-left  .kb-match::before { content:""; position:absolute; right:-13px; width:2px; background:var(--gold); opacity:.45; }
+.kb-round.r-right .kb-match::before { content:""; position:absolute; left:-13px;  width:2px; background:var(--gold); opacity:.45; }
+.kb-match.lo::before { top:50%; height:calc(50% + 22px); }
+.kb-match.hi::before { bottom:50%; height:calc(50% + 22px); }
+.kb-round:last-child .kb-match::after, .kb-round:last-child .kb-match::before,
+.kb-round:first-child .kb-match::after, .kb-round:first-child .kb-match::before { content: none; }
+
+/* Miðja: úrslitaleikur + bikar */
+.kb-center { display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 0 10px; min-width: 210px; gap: 12px; }
+.kb-trophy { font-size: 58px; line-height: 1; filter: drop-shadow(0 8px 26px var(--gold)); }
+.kb-match.kb-final { border-color: color-mix(in srgb, var(--gold) 42%, var(--line));
+  background: linear-gradient(180deg, var(--surface-2), var(--bg-2)); width: 200px; }
+.kb-champ { text-align: center; font-size: 11px; font-weight: 800; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--gold); }
+.kb-third { display: flex; justify-content: center; margin-top: 22px; }
+.kb-third .kb-match { width: 220px; }
+.kb-third-label { text-align: center; }
+
 /* ───────── Stat blocks ───────── */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 14px; }
 .stat { padding: 18px 20px; }

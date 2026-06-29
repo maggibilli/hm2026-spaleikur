@@ -61,10 +61,111 @@ function Predictor({ value, onChange, variant = "stepper", hCode, aCode }) {
   );
 }
 
+// ───────────────────────── Útsláttartré (bracket) ─────────────────────────
+// Röðun leikja í trénu (DB-auðkenni) — staðfest gegn FIFA-tré + völlum/dagsetningum.
+// Vinstri helmingur efst→neðst, hægri helmingur, og úrslitaleikur (176) í miðju.
+const BRACKET = {
+  r32L: [146, 150, 145, 148, 156, 155, 154, 153],
+  r16L: [162, 161, 165, 166],
+  qfL: [169, 170],
+  sfL: [173],
+  r32R: [147, 149, 151, 152, 159, 158, 157, 160],
+  r16R: [163, 164, 167, 168],
+  qfR: [171, 172],
+  sfR: [174],
+  final: 176,
+  third: 175,
+};
+
+function BTeam({ m, i, preds, setSide, locked }) {
+  const code = i === 0 ? m.h : m.a;
+  if (!code || code === "?") {
+    return <div className="kb-team"><div className="kb-badge" /><div className="kb-name kb-tbd">Sigurvegari</div></div>;
+  }
+  const t = team(code);
+  const open = isOpen(m);
+  const fin = m.status === "finished";
+  const pred = preds[m.id];
+  const win = fin && m.res && (i === 0 ? m.res[0] > m.res[1] : m.res[1] > m.res[0]);
+  return (
+    <div className={"kb-team" + (win ? " win" : "")}>
+      <div className="kb-badge">{t.flag}</div>
+      <div className="kb-name">{t.name}<small>{code}</small></div>
+      {open ? (
+        <div className="kb-sc">
+          <button className="kb-step" onClick={() => setSide(m, i, -1)} aria-label="Minnka">−</button>
+          <span className={"kb-num" + (pred ? " set" : "")}>{pred ? pred[i] : 0}</span>
+          <button className="kb-step" onClick={() => setSide(m, i, 1)} aria-label="Hækka">+</button>
+        </div>
+      ) : fin ? (
+        <span className={"kb-num" + (win ? " set" : "")}>{m.res[i]}</span>
+      ) : (
+        <span className={"kb-num kb-lock" + (pred ? " set" : "")}>{pred ? pred[i] : "–"}</span>
+      )}
+    </div>
+  );
+}
+
+function BMatch({ id, preds, setSide, pos, isFinal }) {
+  const m = MATCHES.find((x) => x.id === id);
+  if (!m) return <div className="kb-match" />;
+  return (
+    <div className={"kb-match " + (pos || "") + (isFinal ? " kb-final" : "")}>
+      <BTeam m={m} i={0} preds={preds} setSide={setSide} />
+      <BTeam m={m} i={1} preds={preds} setSide={setSide} />
+    </div>
+  );
+}
+
+function KnockoutBracket({ preds, setPred }) {
+  const setSide = (m, i, d) => {
+    const cur = preds[m.id] || [null, null];
+    const base = [cur[0] == null ? 0 : cur[0], cur[1] == null ? 0 : cur[1]];
+    base[i] = Math.max(0, Math.min(20, base[i] + d));
+    setPred(m.id, base);
+  };
+  const round = (ids, side, label) => (
+    <div className={"kb-round r-" + side}>
+      <div className="kb-round-label">{label}</div>
+      {ids.map((id, idx) => <BMatch key={id} id={id} preds={preds} setSide={setSide} pos={idx % 2 === 0 ? "lo" : "hi"} />)}
+    </div>
+  );
+  return (
+    <div>
+      <div className="kb-scroll">
+        <div className="kb">
+          {round(BRACKET.r32L, "left", "32-liða")}
+          {round(BRACKET.r16L, "left", "16-liða")}
+          {round(BRACKET.qfL, "left", "8-liða")}
+          {round(BRACKET.sfL, "left", "Undanúrslit")}
+          <div className="kb-center">
+            <div className="kb-round-label" style={{ color: "var(--gold)" }}>Úrslit</div>
+            <div className="kb-trophy">🏆</div>
+            <BMatch id={BRACKET.final} preds={preds} setSide={setSide} isFinal />
+            <div className="kb-champ">Hver lyftir bikarnum?</div>
+          </div>
+          {round(BRACKET.sfR, "right", "Undanúrslit")}
+          {round(BRACKET.qfR, "right", "8-liða")}
+          {round(BRACKET.r16R, "right", "16-liða")}
+          {round(BRACKET.r32R, "right", "32-liða")}
+        </div>
+      </div>
+      <div className="kb-third">
+        <div>
+          <div className="kb-round-label kb-third-label">Bronsleikur</div>
+          <BMatch id={BRACKET.third} preds={preds} setSide={setSide} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ───────────────────────── Predict screen ─────────────────────────
 function PredictScreen({ preds, setPred, groupPicks, setGroupPick, champion, setChampion, variant, toast }) {
   const [tab, setTab] = useState("matches");
   const upcoming = MATCHES.filter(isOpen);
+  const openGroup = upcoming.filter((m) => m.stage === "group");
+  const hasKnockout = MATCHES.some((m) => m.stage && m.stage !== "group");
 
   const tabs = [
     { id: "matches", label: "Leikir", n: upcoming.filter((m) => !preds[m.id]).length },
@@ -86,25 +187,32 @@ function PredictScreen({ preds, setPred, groupPicks, setGroupPick, champion, set
       </div>
 
       {tab === "matches" && (
-        <div className="row-cards">
-          {upcoming.map((m) => {
-            const h = team(m.h), a = team(m.a);
-            const done = !!preds[m.id];
-            return (
-              <div key={m.id} className="card anim-in" style={{ padding: "18px 18px 16px" }}>
-                <div className="match-top" style={{ marginBottom: 14 }}>
-                  <span className="match-grp">{m.round}</span>
-                  <span className="pill"><Icon name="clock" style={{ width: 13, height: 13 }} /> {fmtDay(m.dt)} · {fmtTime(m.dt)}</span>
-                </div>
-                <Predictor value={preds[m.id]} onChange={(nv) => setPred(m.id, nv)} variant={variant} hCode={m.h} aCode={m.a} />
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, fontSize: 12, color: "var(--muted)", fontWeight: 600 }}>
-                  <span>{m.venue}</span>
-                  {done ? <span className="pts-tag hit"><Icon name="check" style={{ width: 13, height: 13 }} /> Vistað</span>
-                        : <span style={{ color: "var(--text-dim)" }}>Veldu markatölu</span>}
-                </div>
-              </div>
-            );
-          })}
+        <div className="anim-in">
+          {openGroup.length > 0 && (
+            <div className="row-cards" style={{ marginBottom: 22 }}>
+              {openGroup.map((m) => {
+                const done = !!preds[m.id];
+                return (
+                  <div key={m.id} className="card anim-in" style={{ padding: "18px 18px 16px" }}>
+                    <div className="match-top" style={{ marginBottom: 14 }}>
+                      <span className="match-grp">{m.round}</span>
+                      <span className="pill"><Icon name="clock" style={{ width: 13, height: 13 }} /> {fmtDay(m.dt)} · {fmtTime(m.dt)}</span>
+                    </div>
+                    <Predictor value={preds[m.id]} onChange={(nv) => setPred(m.id, nv)} variant={variant} hCode={m.h} aCode={m.a} />
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, fontSize: 12, color: "var(--muted)", fontWeight: 600 }}>
+                      <span>{m.venue}</span>
+                      {done ? <span className="pts-tag hit"><Icon name="check" style={{ width: 13, height: 13 }} /> Vistað</span>
+                            : <span style={{ color: "var(--text-dim)" }}>Veldu markatölu</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {hasKnockout && <KnockoutBracket preds={preds} setPred={setPred} />}
+          {!hasKnockout && openGroup.length === 0 && (
+            <div className="card empty">Engir opnir leikir í augnablikinu.</div>
+          )}
         </div>
       )}
 
