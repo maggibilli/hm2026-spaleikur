@@ -1,15 +1,32 @@
 /* global window, React, api, team, Icon, SecHead, fmtDay, fmtTime, MATCHES */
 
+// Lið í stafrófsröð fyrir liðaval í útsláttarleikjum
+function teamOptions() {
+  const T = window.TEAMS || {};
+  return Object.keys(T).map((c) => ({ code: c, name: T[c].name }))
+    .sort((a, b) => a.name.localeCompare(b.name, "is"));
+}
+
 // ───────────────────────── Ein leikjaröð (úrslit) ─────────────────────────
 function ResultRow({ m, token, onSaved }) {
-  const { useState } = React;
+  const { useState, useMemo } = React;
+  const isKnockout = m.stage !== "group";
   const h = team(m.h), a = team(m.a);
+  const opts = useMemo(teamOptions, []);
+
   const [hs, setHs] = useState(m.res ? m.res[0] : "");
   const [as, setAs] = useState(m.res ? m.res[1] : "");
   const [status, setStatus] = useState(m.status);
   const [minute, setMinute] = useState(m.minute || "");
   const [busy, setBusy] = useState(false);
   const [ok, setOk] = useState(false);
+
+  // Liðaval (aðeins útsláttarleikir). "?" er merki um óráðið lið í MATCHES.
+  const [homeCode, setHomeCode] = useState(m.h === "?" ? "" : m.h);
+  const [awayCode, setAwayCode] = useState(m.a === "?" ? "" : m.a);
+  const [busyT, setBusyT] = useState(false);
+  const [okT, setOkT] = useState(false);
+  const teamsDirty = homeCode !== (m.h === "?" ? "" : m.h) || awayCode !== (m.a === "?" ? "" : m.a);
 
   const save = async () => {
     setBusy(true); setOk(false);
@@ -25,19 +42,49 @@ function ResultRow({ m, token, onSaved }) {
     setBusy(false);
   };
 
+  const saveTeams = async () => {
+    setBusyT(true); setOkT(false);
+    try {
+      await api.adminSetTeams(token, m.id, homeCode || null, awayCode || null);
+      setOkT(true);
+      await onSaved();
+      setTimeout(() => setOkT(false), 1500);
+    } catch (e) { alert(e.message); }
+    setBusyT(false);
+  };
+
   return (
     <div className={"adm-match status-" + status}>
-      <div className="adm-when">{fmtDay(m.dt)} · {fmtTime(m.dt)} <span className="adm-grp">{m.grp}</span></div>
+      <div className="adm-when">{fmtDay(m.dt)} · {fmtTime(m.dt)} <span className="adm-grp">{isKnockout ? m.round : m.grp}</span></div>
       <div className="adm-teams">
-        <span className="adm-team">{h.flag} <b>{m.h}</b></span>
+        {isKnockout ? (
+          <select className="adm-sel adm-tsel" value={homeCode} onChange={(e) => setHomeCode(e.target.value)}>
+            <option value="">— heimalið —</option>
+            {opts.map((t) => <option key={t.code} value={t.code}>{t.name}</option>)}
+          </select>
+        ) : (
+          <span className="adm-team">{h.flag} <b>{m.h}</b></span>
+        )}
         <input className="adm-score" type="number" min="0" value={hs} disabled={status === "upcoming"}
           onChange={(e) => setHs(e.target.value)} />
         <span className="adm-colon">:</span>
         <input className="adm-score" type="number" min="0" value={as} disabled={status === "upcoming"}
           onChange={(e) => setAs(e.target.value)} />
-        <span className="adm-team right"><b>{m.a}</b> {a.flag}</span>
+        {isKnockout ? (
+          <select className="adm-sel adm-tsel" value={awayCode} onChange={(e) => setAwayCode(e.target.value)}>
+            <option value="">— útilið —</option>
+            {opts.map((t) => <option key={t.code} value={t.code}>{t.name}</option>)}
+          </select>
+        ) : (
+          <span className="adm-team right"><b>{m.a}</b> {a.flag}</span>
+        )}
       </div>
       <div className="adm-controls">
+        {isKnockout && teamsDirty && (
+          <button className={"btn btn-ghost adm-mini" + (okT ? " ok" : "")} onClick={saveTeams} disabled={busyT}>
+            {okT ? <Icon name="check" style={{ width: 14, height: 14 }} /> : busyT ? "…" : "Vista lið"}
+          </button>
+        )}
         <select className="adm-sel" value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="upcoming">Framundan</option>
           <option value="live">Í gangi</option>

@@ -214,7 +214,7 @@ function ScheduleScreen({ preds, setRoute }) {
   });
   return (
     <div className="anim-in">
-      <SecHead title="Dagskrá" sub="Riðlakeppni HM 2026 · Bandaríkin, Kanada & Mexíkó" />
+      <SecHead title="Dagskrá" sub="HM 2026 · Bandaríkin, Kanada & Mexíkó — riðlar og útsláttarkeppni" />
       {Object.keys(byDay).sort().map((day) => {
         const ms = byDay[day];
         return (
@@ -277,6 +277,10 @@ function HelpScreen({ setRoute }) {
           <div className="sr"><span className="d">Réttur heimsmeistari</span><span className="v">25</span></div>
         </div>
       </div>
+      <p className="login-foot" style={{ textAlign: "left", marginTop: 12 }}>
+        Útsláttarkeppnin (32-liða úrslit og áfram) gefur stig eins og riðlaleikir — spáðu fyrir
+        markatöluna eftir venjulegan leiktíma. Leikirnir opnast til spár jafnóðum og liðin ráðast.
+      </p>
       <p className="login-foot" style={{ textAlign: "left", marginTop: 12 }}>
         Dæmi: úrslit verða 2–1. Spáðir þú 2–1 færðu <strong>7 stig</strong>. Spáðir þú 3–1 (réttur
         sigurvegari + rétt mark annars liðs) færðu <strong>4 stig</strong>. Spáðir þú 1–0 (réttur

@@ -35,6 +35,8 @@ const api = {
   // Stjórnun
   adminSetResult: (token, match, h, a, status, minute) =>
     rpc("admin_set_result", { p_token: token, p_match: match, p_home: h, p_away: a, p_status: status, p_minute: minute == null ? null : minute }),
+  adminSetTeams: (token, match, home, away) =>
+    rpc("admin_set_teams", { p_token: token, p_match: match, p_home: home || null, p_away: away || null }),
   adminAddPlayer: (token, name, team) =>
     rpc("admin_add_player", { p_token: token, p_name: name, p_team: team || null }),
   adminRemovePlayer: (token, id) => rpc("admin_remove_player", { p_token: token, p_id: id }),
