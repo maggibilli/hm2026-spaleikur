@@ -386,7 +386,7 @@ function PlayerResults({ playerId, onClose }) {
   const finished = (window.MATCHES || []).filter((m) => m.status === "finished").sort((a, b) => b.dt.localeCompare(a.dt));
   const preds = (data && data.preds) || {};
   const mine = finished.filter((m) => preds[m.id]);
-  const total = mine.reduce((s, m) => s + scorePts(preds[m.id], m.res).pts, 0);
+  const total = mine.reduce((s, m) => s + scorePts(preds[m.id], m.res, m.pens).pts, 0);
 
   return (
     <div className="pmodal-overlay" onClick={onClose}>

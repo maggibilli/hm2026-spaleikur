@@ -110,10 +110,13 @@ function parseKnockoutSections(wt, into) {
     const t2 = body.match(/\|\s*team2\s*=[^\n]*?#invoke:flag\|[a-z-]+\|([A-Za-z]{3})/i);
     // Skor: score link sýnir "Match NN" óspilað, en "2–1" þegar lokið
     const sc = body.match(/\|\s*score\s*=\s*\{\{score link\|[^}|]*\|\s*(\d+)\s*[–—-]\s*(\d+)/i);
+    // Vítakeppni (ef jafnt eftir framlengingu): |penaltyscore=4–3  (heima–úti)
+    const pen = body.match(/\|\s*penaltyscore\s*=\s*(\d+)\s*[–—-]\s*(\d+)/i);
     into[label] = {
       home: t1 ? t1[1].toUpperCase() : null,
       away: t2 ? t2[1].toUpperCase() : null,
       score: sc ? [Number(sc[1]), Number(sc[2])] : null,
+      pens: pen ? [Number(pen[1]), Number(pen[2])] : null,
     };
   }
 }
@@ -147,8 +150,13 @@ async function updateKnockout(koMatches, now) {
     const ripe = now - new Date(m.dt).getTime() > RIPE_MS;
     if (d.score && m.home_code && m.away_code && ripe) {
       try {
-        await rpc("admin_set_result", { p_token: BOT, p_match: m.id, p_home: d.score[0], p_away: d.score[1], p_status: "finished", p_minute: null });
-        console.log(`✓ ${label}: ${m.home_code} ${d.score[0]}-${d.score[1]} ${m.away_code} (id ${m.id})`);
+        await rpc("admin_set_result", {
+          p_token: BOT, p_match: m.id, p_home: d.score[0], p_away: d.score[1],
+          p_status: "finished", p_minute: null,
+          p_pen_home: d.pens ? d.pens[0] : null, p_pen_away: d.pens ? d.pens[1] : null,
+        });
+        const pen = d.pens ? ` (víti ${d.pens[0]}-${d.pens[1]})` : "";
+        console.log(`✓ ${label}: ${m.home_code} ${d.score[0]}-${d.score[1]} ${m.away_code}${pen} (id ${m.id})`);
         resultsSet++;
       } catch (e) { console.log(`✗ úrslit id ${m.id}: ${e.message}`); }
     }

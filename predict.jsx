@@ -86,7 +86,11 @@ function BTeam({ m, i, preds, setSide, locked }) {
   const open = isOpen(m);
   const fin = m.status === "finished";
   const pred = preds[m.id];
-  const win = fin && m.res && (i === 0 ? m.res[0] > m.res[1] : m.res[1] > m.res[0]);
+  const win = fin && m.res && (
+    m.res[0] !== m.res[1]
+      ? (i === 0 ? m.res[0] > m.res[1] : m.res[1] > m.res[0])
+      : (m.pens ? (i === 0 ? m.pens[0] > m.pens[1] : m.pens[1] > m.pens[0]) : false)
+  );
   return (
     <div className={"kb-team" + (win ? " win" : "")}>
       <div className="kb-badge">{t.flag}</div>
@@ -110,10 +114,11 @@ function BMatch({ id, preds, setSide, pos, isFinal }) {
   const m = MATCHES.find((x) => x.id === id);
   if (!m) return <div className="kb-match" />;
   const fin = m.status === "finished";
+  const when = m.pens ? "Víti " + m.pens[0] + "–" + m.pens[1] : fmtDay(m.dt) + " · " + fmtTime(m.dt);
   return (
     <div className={"kb-match " + (pos || "") + (isFinal ? " kb-final" : "")}>
       <BTeam m={m} i={0} preds={preds} setSide={setSide} />
-      <div className={"kb-when" + (fin ? " done" : "")}>{fmtDay(m.dt)} · {fmtTime(m.dt)}</div>
+      <div className={"kb-when" + (fin ? " done" : "")}>{when}</div>
       <BTeam m={m} i={1} preds={preds} setSide={setSide} />
     </div>
   );

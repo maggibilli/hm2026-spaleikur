@@ -18,18 +18,25 @@ function fmtTime(iso) {
   return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
 }
 
-// Stigaútreikningur fyrir einn leik
-function scorePts(pred, res) {
+// Stigaútreikningur fyrir einn leik. `pens` = [heima, úti] í vítakeppni (annars ekkert).
+// Skilar hæsta af markatölu-stigum og vítasigurvegara-stigum (réttur sigurvegari í vítum = 3).
+function scorePts(pred, res, pens) {
   if (!pred || !res || pred[0] == null || pred[1] == null) return { pts: 0, kind: "none" };
   const ph = +pred[0], pa = +pred[1], rh = +res[0], ra = +res[1];
-  if (ph === rh && pa === ra) return { pts: SCORING.exact, kind: "exact" };
   const sign = (a, b) => (a > b ? 1 : a < b ? -1 : 0);
-  const outcomeOk = sign(ph, pa) === sign(rh, ra);
-  if (outcomeOk) {
+  // markatölu-stig (venjulegur tími + framlenging)
+  let goal, gkind;
+  if (ph === rh && pa === ra) { goal = SCORING.exact; gkind = "exact"; }
+  else if (sign(ph, pa) === sign(rh, ra)) {
     const oneOk = ph === rh || pa === ra;
-    return { pts: SCORING.outcome + (oneOk ? SCORING.oneScore : 0), kind: oneOk ? "close" : "outcome" };
+    goal = SCORING.outcome + (oneOk ? SCORING.oneScore : 0); gkind = oneOk ? "close" : "outcome";
+  } else { goal = 0; gkind = "miss"; }
+  // vítasigurvegari: réttur sigurvegari í vítakeppni gefur 3 stig
+  if (pens && pens[0] != null && pens[1] != null && +pens[0] !== +pens[1]
+      && sign(ph, pa) === sign(+pens[0], +pens[1]) && SCORING.outcome > goal) {
+    return { pts: SCORING.outcome, kind: "outcome" };
   }
-  return { pts: 0, kind: "miss" };
+  return { pts: goal, kind: gkind };
 }
 
 // ───────────────────────── Icon ─────────────────────────
@@ -166,7 +173,7 @@ function MatchCard({ m, pred, onClick }) {
   const h = team(m.h), a = team(m.a);
   const finished = m.status === "finished";
   const live = m.status === "live";
-  const sp = finished && pred ? scorePts(pred, m.res) : null;
+  const sp = finished && pred ? scorePts(pred, m.res, m.pens) : null;
   return (
     <div className="card match anim-in" onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
       <div className="match-top">
@@ -186,6 +193,7 @@ function MatchCard({ m, pred, onClick }) {
           ) : (
             <div className="sc" style={{ color: "var(--muted)" }}>–<span className="x">·</span>–</div>
           )}
+          {m.pens && <div className="pens-note">víti {m.pens[0]}–{m.pens[1]}</div>}
         </div>
         <div className="team-side right">
           <span className="flag">{a.flag}</span>

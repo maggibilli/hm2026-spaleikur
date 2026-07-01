@@ -18,6 +18,8 @@ function ResultRow({ m, token, onSaved }) {
   const [as, setAs] = useState(m.res ? m.res[1] : "");
   const [status, setStatus] = useState(m.status);
   const [minute, setMinute] = useState(m.minute || "");
+  const [penH, setPenH] = useState(m.pens ? m.pens[0] : "");
+  const [penA, setPenA] = useState(m.pens ? m.pens[1] : "");
   const [busy, setBusy] = useState(false);
   const [ok, setOk] = useState(false);
 
@@ -34,7 +36,9 @@ function ResultRow({ m, token, onSaved }) {
       await api.adminSetResult(token, m.id,
         status === "upcoming" ? null : (hs === "" ? 0 : +hs),
         status === "upcoming" ? null : (as === "" ? 0 : +as),
-        status, status === "live" ? (minute === "" ? null : +minute) : null);
+        status, status === "live" ? (minute === "" ? null : +minute) : null,
+        status === "finished" && penH !== "" ? +penH : null,
+        status === "finished" && penA !== "" ? +penA : null);
       setOk(true);
       await onSaved();
       setTimeout(() => setOk(false), 1500);
@@ -93,6 +97,14 @@ function ResultRow({ m, token, onSaved }) {
         {status === "live" && (
           <input className="adm-min" type="number" min="0" max="120" placeholder="mín" value={minute}
             onChange={(e) => setMinute(e.target.value)} />
+        )}
+        {isKnockout && status === "finished" && (
+          <span className="adm-pens" title="Vítakeppni (ef jafnt eftir framlengingu)">
+            <span className="adm-pens-lbl">víti</span>
+            <input className="adm-min adm-pen" type="number" min="0" placeholder="–" value={penH} onChange={(e) => setPenH(e.target.value)} />
+            <span className="adm-colon">:</span>
+            <input className="adm-min adm-pen" type="number" min="0" placeholder="–" value={penA} onChange={(e) => setPenA(e.target.value)} />
+          </span>
         )}
         <button className={"btn btn-primary adm-save" + (ok ? " ok" : "")} onClick={save} disabled={busy}>
           {ok ? <Icon name="check" style={{ width: 14, height: 14 }} /> : busy ? "…" : "Vista"}

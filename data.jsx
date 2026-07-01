@@ -33,8 +33,9 @@ const api = {
   leaderboard: () => rpc("leaderboard"),
   playerResults: (id) => rpc("player_results", { p_id: id }),
   // Stjórnun
-  adminSetResult: (token, match, h, a, status, minute) =>
-    rpc("admin_set_result", { p_token: token, p_match: match, p_home: h, p_away: a, p_status: status, p_minute: minute == null ? null : minute }),
+  adminSetResult: (token, match, h, a, status, minute, penH, penA) =>
+    rpc("admin_set_result", { p_token: token, p_match: match, p_home: h, p_away: a, p_status: status, p_minute: minute == null ? null : minute,
+      p_pen_home: penH == null || penH === "" ? null : penH, p_pen_away: penA == null || penA === "" ? null : penA }),
   adminSetTeams: (token, match, home, away) =>
     rpc("admin_set_teams", { p_token: token, p_match: match, p_home: home || null, p_away: away || null }),
   adminAddPlayer: (token, name, team) =>
@@ -79,6 +80,7 @@ async function loadStatic() {
     tbd: !m.home_code || !m.away_code,   // útsláttarleikur þar sem liðin eru óráðin
     round: m.stage === "group" ? "Riðill " + m.grp : (ROUND_NAMES[m.stage] || ""),
     res: m.status === "finished" || m.status === "live" ? [m.home_score, m.away_score] : undefined,
+    pens: (m.home_pens != null && m.away_pens != null) ? [m.home_pens, m.away_pens] : undefined,  // vítakeppni
   }));
 
   Object.assign(window, { TEAMS, GROUPS: GROUPS_SORTED, MATCHES });

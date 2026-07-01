@@ -79,7 +79,7 @@ function App({ session, onLogout }) {
       const p = preds[m.id];
       if (!p) return;
       scored++;
-      const sp = scorePts(p, m.res);
+      const sp = scorePts(p, m.res, m.pens);
       matchPoints += sp.pts;
       if (sp.pts > 0) hits++;
       if (sp.kind === "exact") exact++;
@@ -87,10 +87,10 @@ function App({ session, onLogout }) {
     let streak = 0;
     for (let i = finished.length - 1; i >= 0; i--) {
       const p = preds[finished[i].id];
-      if (p && scorePts(p, finished[i].res).pts > 0) streak++; else break;
+      if (p && scorePts(p, finished[i].res, finished[i].pens).pts > 0) streak++; else break;
     }
     let trend = 0;
-    finished.slice(-2).forEach((m) => { const p = preds[m.id]; if (p) trend += scorePts(p, m.res).pts; });
+    finished.slice(-2).forEach((m) => { const p = preds[m.id]; if (p) trend += scorePts(p, m.res, m.pens).pts; });
 
     const predicted = Object.keys(preds).length;
     const groupsDone = Object.values(groupPicks).filter((x) => x && x.length === 2).length;
